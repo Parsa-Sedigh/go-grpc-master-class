@@ -89,5 +89,13 @@ HTTP2: bottom line
 ## 10-5. Security in gRPC (SSL)
 
 ## 11-6. gRPC vs REST
+![](img/11-6-1.png)
+
+Note: In REST we have resources. It doesn't focus on what is happening. It just deal with resources, but gRPC is oriented around **what**.
+So REST is resource oriented but gRPC is API oriented.
+
+You can't use gRPC without doing code generation(so it's 1st class citizen) which in itself makes gRPC safe.
+
+RPC based means it's like we can call functions directly on the server.
 
 ## 12-7. Section Summary - why use gRPC
