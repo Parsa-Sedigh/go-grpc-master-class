@@ -14,8 +14,8 @@ After creating a rpc function named for example `greet`, we will get `GreetServi
 and `RegisterGreetServiceServer` func. The interfaces have a function named `greet`.
 
 ## 19-3. Unary API Server Implementation
-We now need to have our server struct to implement the `GreetServiceServer` interface(yeah server interface because we're writing the server side
-code not client side).
+**We now need to have our server struct to implement the `GreetServiceServer` interface(yeah server interface because we're writing the server side
+code not client side).**
 
 ## 20-4. Unary API Client Implementation
 We'll implement a client call for our unary RPC.
