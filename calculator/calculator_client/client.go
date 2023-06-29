@@ -117,6 +117,8 @@ func doBiDiStreaming(c calculatorpb.CalculatorServiceClient) {
 			stream.Send(&calculatorpb.FindMaximumRequest{
 				Number: number,
 			})
+
+			// just to see things that are streaming for learning purposes, do not do this in real code
 			time.Sleep(1000 * time.Millisecond)
 		}
 		stream.CloseSend()
@@ -125,6 +127,8 @@ func doBiDiStreaming(c calculatorpb.CalculatorServiceClient) {
 	go func() {
 		for {
 			res, err := stream.Recv()
+
+			// if we get into this if block, it means the server is done streaming back to the client
 			if err == io.EOF {
 				break
 			}

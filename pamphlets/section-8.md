@@ -12,9 +12,24 @@ does not have to match
     - long running connections where you wanna stream info between the client and server
 
 ## 33-2. GreetEveryone API Definition
+- it will take **many** GreetEveryoneRequest that contains a Greeting(client streaming)
+- it will return **many** GreetEveryoneResponse that contains a result string(server streaming)
 
 ## 34-3. Bi-Directional Streaming API Server Implementation
+Note: Although we will response to every message in this example, it is not necessary to do so and the server is free to choose how many
+responses to send for each client message. Server can close the stream whenever it wants. So in the end, the server decides whenever it's done streaming to the
+client and receiving from the client. So server doesn't have to return a response everytime it receives a message.
+
+We can use goroutines to do multiple things at the same time.
+
+Now we have access to Send and Rcv() method, so now we can send many times and receive many times using a for loop.
+
+In `doBiDiStreaming` we have 2 goroutines: one sending reqs and one receiving responses and they all run in parallel and when we received all
+the responses, we close the wait channel(`waitc`). We can break out of the loop, and then after the loop, we can close the `waitc`.
+
 ## 35-4. Bi-Directional Streaming API Client Implementation
+In this example, the server doesn't return a message in response of every sent message of client. It only sends a response if a new maximum is found.
+
 ## 36-5. [Solution] FindMaximum API
 Now it is your turn to write code!
 

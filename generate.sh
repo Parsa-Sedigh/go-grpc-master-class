@@ -2,7 +2,8 @@
 
 # this doesn't work:
 # protoc greet/greetpb/greet.proto --go_out=plugins=grpc:.
-protoc ./greet/greetpb/greet.proto --go-grpc_out=.
+#protoc ./greet/greetpb/greet.proto --go-grpc_out=.
+protoc --proto_path=greet/greetpb --go_out=greet/greetpb --go-grpc_out=. --go_opt=paths=source_relative greet.proto
 
 #protoc calculator/calculatorpb/calculator.proto --go_out=plugins=grpc:.
 protoc calculator/calculatorpb/calculator.proto --go-grpc_out=.
