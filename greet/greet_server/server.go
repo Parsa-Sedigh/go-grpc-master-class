@@ -56,6 +56,7 @@ func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
 		}
 		if err != nil {
 			log.Fatalf("Error while reading client stream: %v", err)
+			return err
 		}
 
 		firstName := req.GetGreeting().GetFirstName()
@@ -66,9 +67,10 @@ func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
 func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) error {
 	fmt.Printf("GreetEveryone function was invoked with a streaming request\n")
 
+	// iterate over client's stream and everytime we receive a message from the client, we will reply to it using Send() .
 	for {
 		req, err := stream.Recv()
-		if err == io.EOF {
+		if err == io.EOF { // the client has done streaming
 			return nil
 		}
 		if err != nil {
