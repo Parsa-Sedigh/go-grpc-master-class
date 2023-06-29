@@ -159,12 +159,17 @@ func doErrorCall(c calculatorpb.CalculatorServiceClient, n int32) {
 
 	if err != nil {
 		respErr, ok := status.FromError(err)
+
+		// if it was a gRPC error, ok would be true
 		if ok {
 			// actual error from gRPC (user error)
 			fmt.Printf("Error message from server: %v\n", respErr.Message())
 			fmt.Println(respErr.Code())
 			if respErr.Code() == codes.InvalidArgument {
 				fmt.Println("We probably sent a negative number!")
+
+				/* we use return here because we don't want the rest of the function to be executed because the rest of the func is assuming there
+				was no error.*/
 				return
 			}
 		} else {
@@ -172,5 +177,6 @@ func doErrorCall(c calculatorpb.CalculatorServiceClient, n int32) {
 			return
 		}
 	}
+
 	fmt.Printf("Result of square root of %v: %v\n", n, res.GetNumberRoot())
 }
