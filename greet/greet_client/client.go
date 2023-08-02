@@ -47,8 +47,11 @@ func main() {
 	// doClientStreaming(c)
 	// doBiDiStreaming(c)
 
-	// doUnaryWithDeadline(c, 5*time.Second) // should complete
-	// doUnaryWithDeadline(c, 1*time.Second) // should timeout
+	// should complete
+	// doUnaryWithDeadline(c, 5*time.Second)
+
+	// should timeout - because the server will take 3 seconds to complete, but we specified a timeout of 1 second here
+	// doUnaryWithDeadline(c, 1*time.Second)
 }
 
 func doUnary(c greetpb.GreetServiceClient) {
@@ -239,6 +242,7 @@ func doUnaryWithDeadline(c greetpb.GreetServiceClient, timeout time.Duration) {
 		} else {
 			log.Fatalf("error while calling GreetWithDeadline RPC: %v", err)
 		}
+
 		return
 	}
 	log.Printf("Response from GreetWithDeadline: %v", res.Result)
