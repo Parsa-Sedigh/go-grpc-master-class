@@ -126,4 +126,67 @@ Note: You can run the client in both insecure and secure(SSL enabled) modes base
 in the same mode(see the example code). Now you can have the server and client switch TLS on and off.
 
 ## 43-7. [Demo] Language Interoperability
+![](img/42-6-3.png)
+
+You can run the grpc server written in go and then a java client sending reqs to server and everything works out(as long as the protobuf definitions
+are the same)! The opposite is also true(java server and go client).
+
 ## 44-8. gRPC Reflection & Evans CLI
+- as we've seen, for clients to connect to our server, they need to have a .proto file(to produce code for the selected language) which defines the server.
+Both the server and the client have the same proto file
+- this is fine for production(you definitely want to know the API definition in advance)
+- for development, when you have a gRPC server you don't know what it's capable of doing, sometimes you wish you could ask the server: "Hey! What APIs
+do you have?"
+
+Enter gRPC reflection.
+
+We can ask the server what APIs it has.
+
+We may want reflection for two reasons:
+- we want the servers to expose which endpoints are available which is a huge difference to for example a REST api where we don't know in advance which
+API endpoints exist
+- it will allow us to use CLI interfaces that do support reflection, to talk to our server without having a preliminary .proto file
+
+To use reflection:
+1. implement reflection on our server
+2. we'll use the evans CLI(which OFC supports reflection) to practice on the client side
+
+In grpc-go repo, go to reflection directory to see the instructions. On server, we'll use `google.golang.org/grpc/reflection` to enable reflection:
+```go
+s := grpc.NewServer()
+reflection.Register(s)
+```
+
+Now install Evans cli:
+```shell
+go get github.com/ktr0731/evans
+```
+
+Then:
+```shell
+evans -p <server port> -r
+
+show package
+
+show service
+
+show message
+
+desc <message type> # like desc SumRequest
+```
+
+Working with the packages:
+```shell
+show package # gives you some packages like `default`
+package <package name like default> # with this, we say we want to use package <package name>
+```
+
+```shell
+service <service name like CalculatorService> # now we're in default.CalculatorService@<host:port> . Now we can call the RPC functions in this service
+call <rpc function in this service> # call sum. Then it will prompt us for the body of the req
+```
+
+When you have an RPC that is client streaming(in our project like `call ComputeAverage`), the cli will never stop asking req of 
+the body until we hit `ctrl + d` which will send the signal to server saying: we're done streaming and then we will get the single server response.
+
+Note: This wasn't possible if we didn't enable gRPC reflection on the server.
