@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package blog;
 
-option go_package = "blogpb";
+// option go_package = "blogpb";
+option go_package = "./blog/blogpb";
 
 message Blog {
     string id = 1;
@@ -16,7 +17,7 @@ message CreateBlogRequest {
 }
 
 message CreateBlogResponse {
-    Blog blog = 1; // will have a blog id
+    Blog blog = 1; // will have a blog_id
 }
 
 message ReadBlogRequest {
@@ -43,18 +44,16 @@ message DeleteBlogResponse {
     string blog_id = 1;
 }
 
-message ListBlogRequest {
-
-}
+message ListBlogRequest {}
 
 message ListBlogResponse {
     Blog blog = 1;
 }
 
 service BlogService {
-    rpc CreateBlog (CreateBlogRequest) returns (CreateBlogResponse);
-    rpc ReadBlog (ReadBlogRequest) returns (ReadBlogResponse); // return NOT_FOUND if not found
-    rpc UpdateBlog (UpdateBlogRequest) returns (UpdateBlogResponse); // return NOT_FOUND if not found
-    rpc DeleteBlog (DeleteBlogRequest) returns (DeleteBlogResponse); // return NOT_FOUND if not found
-    rpc ListBlog (ListBlogRequest) returns (stream ListBlogResponse);
+    rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse);
+    rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse); // return NOT_FOUND if not found
+    rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse); // returns NOT_FOUND if not found
+    rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse); // returns NOT_FOUND if not found
+    rpc ListBlog(ListBlogRequest) returns (stream ListBlogResponse);
 }

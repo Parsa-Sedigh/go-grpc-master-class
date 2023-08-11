@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/Parsa-Sedigh/go-grpc-master-class/blog/blogpb"
+	"google.golang.org/grpc"
 	"io"
 	"log"
-
-	"github.com/simplesteph/grpc-go-course/blog/blogpb"
-	"google.golang.org/grpc"
+	"log/slog"
+	"os"
 )
 
-func main() {
+var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+func main() {
 	fmt.Println("Blog Client")
 
 	opts := grpc.WithInsecure()
@@ -20,75 +22,85 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
-	defer cc.Close() // Maybe this should be in a separate function and the error handled?
+	defer cc.Close()
 
 	c := blogpb.NewBlogServiceClient(cc)
 
 	// create Blog
-	fmt.Println("Creating the blog")
+	fmt.Println("Creating the blog...")
+
 	blog := &blogpb.Blog{
-		AuthorId: "Stephane",
-		Title:    "My First Blog",
-		Content:  "Content of the first blog",
+		AuthorId: "Parsa",
+		Title:    "First blog",
+		Content:  "content of the first blog",
 	}
+
 	createBlogRes, err := c.CreateBlog(context.Background(), &blogpb.CreateBlogRequest{Blog: blog})
 	if err != nil {
-		log.Fatalf("Unexpected error: %v", err)
+		log.Fatalf("Unexpected err: %v", err)
 	}
-	fmt.Printf("Blog has been created: %v", createBlogRes)
-	blogID := createBlogRes.GetBlog().GetId()
+
+	fmt.Printf("Blog has been created: %v\n", createBlogRes)
+
+	blogID := createBlogRes.Blog.GetId()
 
 	// read Blog
 	fmt.Println("Reading the blog")
 
-	_, err2 := c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{BlogId: "5bdc29e661b75adcac496cf4"})
-	if err2 != nil {
-		fmt.Printf("Error happened while reading: %v \n", err2)
+	_, err = c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{BlogId: "sdsds"})
+	if err != nil {
+		fmt.Printf("Error happened while reading: %v \n", err)
 	}
 
+	// we're gonna read exactly what we just created, yeah it doesn't make sense but this is just for learning
 	readBlogReq := &blogpb.ReadBlogRequest{BlogId: blogID}
-	readBlogRes, readBlogErr := c.ReadBlog(context.Background(), readBlogReq)
-	if readBlogErr != nil {
-		fmt.Printf("Error happened while reading: %v \n", readBlogErr)
+
+	readBlogRes, err := c.ReadBlog(context.Background(), readBlogReq)
+	if err != nil {
+		fmt.Printf("Error happened while reading: %v \n", err)
 	}
 
-	fmt.Printf("Blog was read: %v \n", readBlogRes)
+	fmt.Printf("Blog was read: %v", readBlogRes)
 
 	// update Blog
-	newBlog := &blogpb.Blog{
+	blog = &blogpb.Blog{
 		Id:       blogID,
-		AuthorId: "Changed Author",
-		Title:    "My First Blog (edited)",
-		Content:  "Content of the first blog, with some awesome additions!",
+		AuthorId: "Parsa 2",
+		Title:    "Second blog",
+		Content:  "content of the second blog",
 	}
-	updateRes, updateErr := c.UpdateBlog(context.Background(), &blogpb.UpdateBlogRequest{Blog: newBlog})
-	if updateErr != nil {
-		fmt.Printf("Error happened while updating: %v \n", updateErr)
+	updateBlogRes, err := c.UpdateBlog(context.Background(), &blogpb.UpdateBlogRequest{Blog: blog})
+	if err != nil {
+		logger.Error("Error happened while updating: ", err, "\n")
 	}
-	fmt.Printf("Blog was updated: %v\n", updateRes)
+
+	logger.Info("Blog was read: ", updateBlogRes)
 
 	// delete Blog
-	deleteRes, deleteErr := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{BlogId: blogID})
-
-	if deleteErr != nil {
-		fmt.Printf("Error happened while deleting: %v \n", deleteErr)
+	deleteRes, err := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{BlogId: blogID})
+	if err != nil {
+		logger.Error("Error happened while deleting: ", err, "\n")
 	}
-	fmt.Printf("Blog was deleted: %v \n", deleteRes)
+
+	logger.Info("Blog was deleted: ", deleteRes, "\n")
 
 	// list Blogs
 
+	// the request is empty(it's ok)
 	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
 	if err != nil {
-		log.Fatalf("error while calling ListBlog RPC: %v", err)
+		logger.Error("error while calling ListBlog RPC: ", err, "\n")
 	}
+
 	for {
 		res, err := stream.Recv()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Something happened: %v", err)
+			logger.Error("error while calling ListBlog RPC: ", err, "\n")
 		}
+
 		fmt.Println(res.GetBlog())
 	}
 }
